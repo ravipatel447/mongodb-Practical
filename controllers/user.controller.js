@@ -4,15 +4,6 @@ const { userMessages } = require("../messages");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../utils/response");
 
-const getUserDataDashboard = catchAsync(async (req, res) => {
-  const user = req.user._id;
-  const data = await userService.getUserDashboardData(user);
-  return res.render("user/dashboard", {
-    title: "Dashboard",
-    data,
-  });
-});
-
 const getUserProfile = catchAsync(async (req, res) => {
   return response.successResponse(
     res,
@@ -43,7 +34,6 @@ const deleteUserProfile = catchAsync(async (req, res) => {
 });
 
 module.exports = {
-  getUserDataDashboard,
   getUserProfile,
   updateUserProfile,
   deleteUserProfile,
