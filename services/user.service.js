@@ -16,7 +16,7 @@ const createUser = async (body) => {
 /**
  * get users list
  * @param {Object} filters
- * @returns {Array<Promise<User>>}
+ * @returns {Promise<Array>}
  */
 const getUsers = async (filters = {}) => {
   return User.find(filters);
