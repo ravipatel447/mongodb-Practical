@@ -25,7 +25,7 @@ const getPosts = catchAsync(async (req, res) => {
 });
 
 const getMyPosts = catchAsync(async (req, res) => {
-  const myposts = await postService.getPosts({ posteBy: req.user._id });
+  const myposts = await postService.getPosts({ postedBy: req.user._id });
   return response.successResponse(
     res,
     httpStatus.OK,
@@ -35,7 +35,7 @@ const getMyPosts = catchAsync(async (req, res) => {
 });
 
 const getPostsByUserId = catchAsync(async (req, res) => {
-  const posts = await postService.getPosts({ posteBy: req.params.id });
+  const posts = await postService.getPosts({ postedBy: req.params.id });
   return response.successResponse(
     res,
     httpStatus.OK,

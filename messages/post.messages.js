@@ -1,6 +1,7 @@
 module.exports = {
   error: {
-    POST_NOT_FOUND: "user not found!",
+    POST_NOT_FOUND: "Post not found!",
+    NOW_ALLOWED: "you are not Allowed to Perform This task",
     INVALID_UPDATES: "Invalid Updates",
   },
   success: {

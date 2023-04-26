@@ -16,11 +16,11 @@ router.post(
   postController.createPost
 );
 router.patch(
-  "/:id",
+  "/update/:id",
   auth,
   validate(postValidation.updateValidation),
   postController.updateMyPost
 );
-router.delete("/:id", auth, postController.deleteMyPost);
+router.delete("/delete/:id", auth, postController.deleteMyPost);
 
 module.exports = router;

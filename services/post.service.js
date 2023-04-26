@@ -58,7 +58,7 @@ const getPostByFilter = async (filters = {}) => {
  */
 const updatePost = async (id, user, body) => {
   const updates = Object.keys(body);
-  const post = Post.findOne({ _id: id, postedBy: user._id });
+  const post = await Post.findOne({ _id: id, postedBy: user._id });
   if (!post) {
     throw new ApiError(
       postMessages.error.POST_NOT_FOUND,
@@ -80,7 +80,7 @@ const updatePost = async (id, user, body) => {
  * @throws {ApiError} If the post is not found or the user is not authorized to delete it.
  */
 const deletePost = async (id, user) => {
-  const post = Post.findOneAndDelete({ _id: id, postedBy: user._id });
+  const post = await Post.findOneAndDelete({ _id: id, postedBy: user._id });
   if (!post) {
     throw new ApiError(
       postMessages.error.POST_NOT_FOUND,
