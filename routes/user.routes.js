@@ -6,6 +6,7 @@ const auth = require("../middlewares/auth");
 const router = express.Router();
 
 router.get("/me", auth, userController.getUserProfile);
+router.get("/:id", userController.getUserById);
 
 router.patch(
   "/me",

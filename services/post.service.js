@@ -2,6 +2,7 @@ const httpStatus = require("http-status");
 const { Post } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { postMessages } = require("../messages");
+const { $where } = require("../models/user.model");
 
 /**
  * Creates a new post.
@@ -24,6 +25,126 @@ const createPost = async (body, user) => {
  */
 const getPosts = async (filters = {}) => {
   return Post.find(filters);
+};
+
+/**
+ * Gets all posts that match the given filters.
+ * @async
+ * @param {Object} [filters={}] - The filters to apply to the query.
+ * @returns {Promise<Array>}
+ */
+const getAggregatedPosts = async (
+  skip = 0,
+  limit = 100,
+  sorting = 1,
+  sortBy = "_id"
+) => {
+  const sort = {};
+  sort[sortBy] = sorting;
+  const posts = await Post.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        as: "postedBy",
+        let: { postedBy: "$postedBy" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$$postedBy", "$_id"] },
+            },
+          },
+          {
+            $project: {
+              Name: {
+                $concat: ["$firstName", " ", "$lastName"],
+              },
+              _id: 0,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        as: "comments",
+        let: { pId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$$pId", "$postId"] },
+            },
+          },
+          {
+            $project: {
+              comment: 1,
+              _id: 0,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $sort: sort,
+    },
+    {
+      $skip: skip,
+    },
+    {
+      $limit: limit,
+    },
+    {
+      $project: {
+        title: 1,
+        description: 1,
+        postedBy: {
+          $first: "$postedBy.Name",
+        },
+        comments: 1,
+      },
+    },
+  ]);
+  return posts;
+};
+
+const totalPostEachUser = async () => {
+  const data = await Post.aggregate([
+    {
+      $group: { _id: "$postedBy", totalPosts: { $sum: 1 } },
+    },
+    {
+      $lookup: {
+        from: "users",
+        as: "postedBy",
+        let: { postedBy: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$$postedBy", "$_id"] },
+            },
+          },
+          {
+            $project: {
+              Name: {
+                $concat: ["$firstName", " ", "$lastName"],
+              },
+              _id: 0,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalPosts: 1,
+        User: {
+          $first: "$postedBy.Name",
+        },
+      },
+    },
+  ]);
+  return data;
 };
 
 /**
@@ -95,6 +216,8 @@ module.exports = {
   getPosts,
   getPostById,
   getPostByFilter,
+  getAggregatedPosts,
+  totalPostEachUser,
   updatePost,
   deletePost,
 };

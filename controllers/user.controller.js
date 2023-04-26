@@ -13,6 +13,16 @@ const getUserProfile = catchAsync(async (req, res) => {
   );
 });
 
+const getUserById = catchAsync(async (req, res) => {
+  const user = await userService.getUserById(req.params.id);
+  return response.successResponse(
+    res,
+    httpStatus.OK,
+    { user },
+    userMessages.success.USER_PROFILE_FETCH_SUCCESS
+  );
+});
+
 const updateUserProfile = catchAsync(async (req, res) => {
   const user = await userService.updateUserProfile(req.user, req.body);
   return response.successResponse(
@@ -35,6 +45,7 @@ const deleteUserProfile = catchAsync(async (req, res) => {
 
 module.exports = {
   getUserProfile,
+  getUserById,
   updateUserProfile,
   deleteUserProfile,
 };
