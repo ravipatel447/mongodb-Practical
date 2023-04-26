@@ -3,6 +3,7 @@ const { postService } = require("../services");
 const { postMessages } = require("../messages");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../utils/response");
+const _ = require("lodash");
 
 const createPost = catchAsync(async (req, res) => {
   const post = await postService.createPost(req.body, req.user);
@@ -15,7 +16,29 @@ const createPost = catchAsync(async (req, res) => {
 });
 
 const getPosts = catchAsync(async (req, res) => {
-  const posts = await postService.getPosts();
+  const page = parseInt(_.get(req.query, "page", 1));
+  const limit = parseInt(_.get(req.query, "limit", 10));
+  const sortingOrder = _.get(req.query, "sort", "ASC");
+  const sortBy = _.get(req.query, "sortBy", "_id");
+
+  const posts = await postService.getAggregatedPosts(
+    (page - 1) * limit,
+    limit,
+    sortingOrder === "DESC" ? -1 : 1,
+    sortBy
+  );
+  return response.successResponse(
+    res,
+    httpStatus.OK,
+    { posts },
+    postMessages.success.POSTS_FETCH_SUCCESS
+  );
+});
+
+const searchPosts = catchAsync(async (req, res) => {
+  const posts = await postService.getPosts({
+    title: { $regex: req.query.text, $options: "i" },
+  });
   return response.successResponse(
     res,
     httpStatus.OK,
@@ -25,7 +48,13 @@ const getPosts = catchAsync(async (req, res) => {
 });
 
 const getMyPosts = catchAsync(async (req, res) => {
-  const myposts = await postService.getPosts({ postedBy: req.user._id });
+  const myposts = await req.user.populate({
+    path: "posts",
+    options: {
+      limit: parseInt(100),
+      skip: parseInt(0),
+    },
+  });
   return response.successResponse(
     res,
     httpStatus.OK,
@@ -36,6 +65,16 @@ const getMyPosts = catchAsync(async (req, res) => {
 
 const getPostsByUserId = catchAsync(async (req, res) => {
   const posts = await postService.getPosts({ postedBy: req.params.id });
+  return response.successResponse(
+    res,
+    httpStatus.OK,
+    { posts },
+    postMessages.success.POSTS_FETCH_SUCCESS
+  );
+});
+
+const getTotalpostsByEachUser = catchAsync(async (req, res) => {
+  const posts = await postService.totalPostEachUser();
   return response.successResponse(
     res,
     httpStatus.OK,
@@ -77,8 +116,10 @@ const deleteMyPost = catchAsync(async (req, res) => {
 module.exports = {
   createPost,
   getPosts,
+  searchPosts,
   getPostById,
   getMyPosts,
+  getTotalpostsByEachUser,
   getPostsByUserId,
   updateMyPost,
   deleteMyPost,

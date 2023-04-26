@@ -6,8 +6,13 @@ module.exports = async (err, req, res, next) => {
   let message;
   let status;
   if (err instanceof ValidationError) {
-    message = err.details.body[0].message;
-    status = err.statusCode;
+    if (err.details.query) {
+      message = err.details.query[0].message;
+      status = err.statusCode;
+    } else {
+      message = err.details.body[0].message;
+      status = err.statusCode;
+    }
   }
   if (req.body) {
     const { formSubmit } = req.body;

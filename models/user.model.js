@@ -27,8 +27,22 @@ const userSchema = new Schema(
       type: [{ token: String }],
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
+    toObject: {
+      virtuals: true,
+    },
+  }
 );
+
+userSchema.virtual("posts", {
+  ref: "Post",
+  localField: "_id",
+  foreignField: "postedBy",
+});
 
 // static login method
 userSchema.statics.login = async function (email, password) {
@@ -58,6 +72,8 @@ userSchema.methods.toJSON = function () {
   delete user.createdAt;
   delete user.updatedAt;
   delete user.tokens;
+  delete user.__v;
+  delete user.id;
   return user;
 };
 

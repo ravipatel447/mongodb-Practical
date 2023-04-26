@@ -28,7 +28,7 @@ const getUsers = async (filters = {}) => {
  * @returns {Promise<User>}
  */
 const getUserByFilter = async (filters = {}) => {
-  return User.findOne(filters);
+  return User.findOne(filters).populate("posts");
 };
 
 /**
