@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const postSchema = new mongoose.Schema(
   {
@@ -28,10 +29,14 @@ const postSchema = new mongoose.Schema(
     },
   }
 );
+
+postSchema.plugin(mongoosePaginate);
+
 postSchema.virtual("comments", {
   ref: "Comment",
   localField: "_id",
   foreignField: "postId",
+  count: true,
 });
 const Post = mongoose.model("Post", postSchema);
 module.exports = Post;

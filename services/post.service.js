@@ -23,8 +23,8 @@ const createPost = async (body, user) => {
  * @param {Object} [filters={}] - The filters to apply to the query.
  * @returns {Promise<Array>}
  */
-const getPosts = async (filters = {}) => {
-  return Post.find(filters);
+const getPosts = async (filters = {}, populate = "") => {
+  return Post.find(filters).populate(populate);
 };
 
 /**
@@ -97,6 +97,8 @@ const getAggregatedPosts = async (
       $project: {
         title: 1,
         description: 1,
+        createdAt: 1,
+        updatedAt: 1,
         postedBy: {
           $first: "$postedBy.Name",
         },

@@ -5,7 +5,7 @@ module.exports = {
     database: process.env.MONGODB_DATABASE,
   },
   system: {
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 3001,
   },
   jwt: {
     secret: process.env.JWT_SECRET,

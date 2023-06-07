@@ -16,17 +16,13 @@ const createPost = catchAsync(async (req, res) => {
 });
 
 const getPosts = catchAsync(async (req, res) => {
-  const page = parseInt(_.get(req.query, "page", 1));
-  const limit = parseInt(_.get(req.query, "limit", 10));
-  const sortingOrder = _.get(req.query, "sort", "ASC");
-  const sortBy = _.get(req.query, "sortBy", "_id");
+  // const page = parseInt(_.get(req.query, "page", 1));
+  // const limit = parseInt(_.get(req.query, "limit", 10));
+  // const sortingOrder = _.get(req.query, "sort", "ASC");
+  // const sortBy = _.get(req.query, "sortBy", "_id");
 
-  const posts = await postService.getAggregatedPosts(
-    (page - 1) * limit,
-    limit,
-    sortingOrder === "DESC" ? -1 : 1,
-    sortBy
-  );
+  const posts = await postService.getPosts({}, "comments postedBy");
+
   return response.successResponse(
     res,
     httpStatus.OK,
