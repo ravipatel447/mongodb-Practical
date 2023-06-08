@@ -23,8 +23,52 @@ const createPost = async (body, user) => {
  * @param {Object} [filters={}] - The filters to apply to the query.
  * @returns {Promise<Array>}
  */
-const getPosts = async (filters = {}, populate = "") => {
-  return Post.find(filters).populate(populate);
+const getPosts = async (filters = {}, user = "") => {
+  return Post.aggregate([
+    {
+      $match: filters,
+    },
+    {
+      $addFields: {
+        self: { $eq: ["$postedBy", user] },
+      },
+    },
+    {
+      $lookup: {
+        from: "comments",
+        localField: "_id",
+        foreignField: "postId",
+        as: "comments",
+      },
+    },
+    {
+      $set: {
+        comments: { $size: "$comments" },
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "postedBy",
+        foreignField: "_id",
+        as: "postedBy",
+        pipeline: [
+          {
+            $project: {
+              _id: 0,
+              firstName: "$firstName",
+              lastName: "$lastName",
+            },
+          },
+        ],
+      },
+    },
+    {
+      $set: {
+        postedBy: { $arrayElemAt: ["$postedBy", 0] },
+      },
+    },
+  ]);
 };
 
 /**
@@ -156,8 +200,8 @@ const totalPostEachUser = async () => {
  * @param {Object} [filters={}] - The filters to apply to the query.
  * @returns {Promise<Object>}
  */
-const getPostById = async (id, filters = {}) => {
-  return Post.findOne({ _id: id, ...filters });
+const getPostById = async (id, filters = {}, populate = "") => {
+  return Post.findOne({ _id: id, ...filters }).populate(populate);
 };
 
 /**

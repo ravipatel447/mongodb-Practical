@@ -19,7 +19,12 @@ const createComment = catchAsync(async (req, res) => {
 });
 
 const getCommentsByPostId = catchAsync(async (req, res) => {
-  const comments = await commentService.getCommentsOnPosts(req.params.postId);
+  const { user } = req;
+  const comments = await commentService.getCommentsOnPosts(
+    req.params.postId,
+    {},
+    user?._id || ""
+  );
   return response.successResponse(
     res,
     httpStatus.OK,
@@ -29,12 +34,26 @@ const getCommentsByPostId = catchAsync(async (req, res) => {
 });
 
 const deleteMyComment = catchAsync(async (req, res) => {
-  await commentService.deleteComment(req.params.id, req.user);
+  const comment = await commentService.deleteComment(req.params.id, req.user);
   return response.successResponse(
     res,
     httpStatus.OK,
-    {},
+    { comment },
     commentMessages.success.COMMENT_DELETION_SUCCESS
+  );
+});
+
+const updateCommentById = catchAsync(async (req, res) => {
+  const { user, body } = req;
+  const { commentId } = req.params;
+  const comment = await commentService.updateCommentById(commentId, body, {
+    commentedBy: user._id,
+  });
+  return response.successResponse(
+    res,
+    httpStatus.OK,
+    { comment },
+    "Comment updated successfully!"
   );
 });
 
@@ -42,4 +61,5 @@ module.exports = {
   createComment,
   getCommentsByPostId,
   deleteMyComment,
+  updateCommentById,
 };

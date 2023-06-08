@@ -20,8 +20,13 @@ const getPosts = catchAsync(async (req, res) => {
   // const limit = parseInt(_.get(req.query, "limit", 10));
   // const sortingOrder = _.get(req.query, "sort", "ASC");
   // const sortBy = _.get(req.query, "sortBy", "_id");
-
-  const posts = await postService.getPosts({}, "comments postedBy");
+  const { user } = req;
+  let posts;
+  if (user) {
+    posts = await postService.getPosts({}, user._id);
+  } else {
+    posts = await postService.getPosts({});
+  }
 
   return response.successResponse(
     res,
@@ -80,7 +85,22 @@ const getTotalpostsByEachUser = catchAsync(async (req, res) => {
 });
 
 const getPostById = catchAsync(async (req, res) => {
-  const post = await postService.getPostById(req.params.id);
+  const post = await postService.getPostById(
+    req.params.id,
+    {},
+    {
+      path: "postedBy",
+      select: "firstName lastName",
+    }
+  );
+  if (!post) {
+    return response.errorResponse(
+      res,
+      httpStatus.NOT_FOUND,
+      {},
+      "no post found with this id!"
+    );
+  }
   return response.successResponse(
     res,
     httpStatus.OK,
