@@ -36,8 +36,6 @@ module.exports = async (err, req, res, next) => {
   if (req.path.includes("/api/v1")) {
     return response.errorResponse(res, status, {}, message);
   } else {
-    if (err.redirects) {
-      return res.redirect(err.url);
-    }
+    return response.errorResponse(res, status, {}, message);
   }
 };
