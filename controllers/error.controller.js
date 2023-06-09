@@ -39,10 +39,5 @@ module.exports = async (err, req, res, next) => {
     if (err.redirects) {
       return res.redirect(err.url);
     }
-    return res.render("error", {
-      message,
-      status,
-      error: JSON.stringify(err),
-    });
   }
 };

@@ -5,24 +5,6 @@ const { userMessages } = require("../messages");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../utils/response");
 
-const getLoginPage = catchAsync(async (req, res) => {
-  if (req.user) {
-    return res.redirect("/");
-  }
-  return res.status(200).render("auth/login", {
-    title: "Login Client",
-  });
-});
-
-const getRegisterPage = catchAsync(async (req, res) => {
-  if (req.user) {
-    return res.redirect("/");
-  }
-  return res.status(200).render("auth/register", {
-    title: "Register Client",
-  });
-});
-
 const loginUser = catchAsync(async (req, res) => {
   const { body } = req;
   const user = await User.login(body.email, body.password);
@@ -58,16 +40,8 @@ const getCurrentUserProfile = catchAsync(async (req, res) => {
   );
 });
 
-const authLogoutRender = catchAsync(async (req, res) => {
-  res.clearCookie("token");
-  return res.redirect("/");
-});
-
 module.exports = {
   loginUser,
   registerUser,
   getCurrentUserProfile,
-  getLoginPage,
-  getRegisterPage,
-  authLogoutRender,
 };

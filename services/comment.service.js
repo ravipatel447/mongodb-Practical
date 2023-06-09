@@ -31,12 +31,10 @@ const createComment = async (postId, body, user) => {
  * @returns {Promise<Comment[]>} - An array of comment objects matching the filters
  */
 const getCommentsOnPosts = async (postId, filters = {}, user) => {
-  console.log("postId==", postId);
   // return Comment.find({ postId: postId }).populate({
   //   path: "commentedBy",
   //   select: "firstName lastName",
   // });
-  console.log("user==", user);
   return Comment.aggregate([
     {
       $match: {
@@ -84,8 +82,6 @@ const getCommentsOnPosts = async (postId, filters = {}, user) => {
  * @throws {ApiError} - If the comment is not found
  */
 const deleteComment = async (id, user) => {
-  console.log("id==", id);
-  console.log("user==", user);
   const comment = await Comment.findOneAndDelete({
     _id: id,
     commentedBy: user._id,
