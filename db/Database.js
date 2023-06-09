@@ -6,6 +6,9 @@ class Database {
   database = config.mongodb.database;
 
   get fullUrl() {
+    if (this.url.includes("+srv")) {
+      return `${this.url}/${this.database}`;
+    }
     return `${this.url}:${this.port}/${this.database}`;
   }
   _connect() {
